@@ -1,0 +1,17 @@
+# Merge into an ESPHome device that uses the external component.
+# Do not run alongside the historical tp29_sniffer.h GPIO interrupt handler.
+external_components:
+  - source: github://prokudin07/comelit-6750w-esphome@main
+    components: [comelit_simplebus]
+    refresh: 0s
+
+logger:
+  level: DEBUG
+  logs:
+    comelit_bus: INFO
+
+comelit_simplebus:
+  rx_pin:
+    number: GPIO3
+    mode: INPUT
+  bus_monitor: true

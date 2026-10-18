@@ -22,6 +22,7 @@ class ComelitSimplebus : public Component {
  public:
   void set_rx_pin(InternalGPIOPin *pin) { rx_pin_ = pin; }
   void set_apartment_address(uint8_t address) { apartment_address_ = address; }
+  void set_bus_monitor(bool enabled) { bus_monitor_ = enabled; }
   void set_ring_duration(uint32_t duration) { ring_duration_ = duration; }
   void set_ring(binary_sensor::BinarySensor *sensor) { ring_ = sensor; }
   void add_frame_trigger(FrameTrigger *trigger) { triggers_.push_back(trigger); }
@@ -38,5 +39,6 @@ class ComelitSimplebus : public Component {
   uint8_t apartment_address_{1};
   uint32_t ring_duration_{3000}, ring_started_{0}, last_dropped_{0};
   bool ringing_{false};
+  bool bus_monitor_{false};
 };
 }  // namespace esphome::comelit_simplebus

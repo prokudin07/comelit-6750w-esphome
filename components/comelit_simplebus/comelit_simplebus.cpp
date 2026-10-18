@@ -1,4 +1,5 @@
 #include "comelit_simplebus.h"
+#include "bus_monitor.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
@@ -25,6 +26,7 @@ void ComelitSimplebus::setup() {
 }
 void ComelitSimplebus::dump_config() {
   ESP_LOGCONFIG(TAG, "Comelit Simplebus2 TP28 receiver (RX only)");
+  ESP_LOGCONFIG(TAG, "  Whole-bus event monitor: %s", bus_monitor_ ? "enabled" : "disabled");
   LOG_PIN("  RX pin: ", rx_pin_);
   ESP_LOGCONFIG(TAG, "  Address: %u; ring pulse: %u ms", apartment_address_, (unsigned) ring_duration_);
 }
@@ -50,6 +52,7 @@ void ComelitSimplebus::loop() {
     Frame f = decode(r.bits);
     ESP_LOGI(TAG, "RAW LSB: %.6s %.8s %.4s; command=%u address=%u checksum=%u calc=%u valid=%s",
              raw, raw + 6, raw + 14, f.command, f.address, f.checksum, f.calculated, f.valid ? "YES" : "NO");
+    if (bus_monitor_) log_bus_frame(f.command, f.address, f.checksum, f.valid);
     if (!f.valid) continue;
     if (f.command == 50 && f.address == apartment_address_) {
       ring_started_ = millis();

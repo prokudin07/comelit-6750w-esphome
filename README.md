@@ -65,6 +65,12 @@ command=50 address=1 checksum=4 calc=4 valid=YES
 
 Reception uses an interrupt on both edges. Records are queued and processed in the main loop, so logging and ESPHome automations do not run inside the ISR. Debug logs include rejected partial frames; queue overflow is reported. Keep `on_frame` actions short to avoid losing traffic.
 
+## Monitor calls and commands across the bus
+
+Enable `bus_monitor: true` in `comelit_simplebus:` for readable logs of calls, answer/off-hook, door-open requests, hang-up/on-hook and unknown commands at **every received bus address**. This does not change the address filter for your ring sensor.
+
+See [the complete bus monitor example](examples/bus-monitor.yaml), [the reusable package](packages/bus-monitor.yaml) and [instructions including the historical HA sniffer](docs/bus-monitor.md). An address is not necessarily an apartment number, and an observed door-open command does not prove that the lock opened. Missing packets remain possible.
+
 ## Findings and evidence
 
 - [Hardware measurements, wiring, TP28, TP29 and J3](docs/hardware.md)

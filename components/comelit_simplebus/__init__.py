@@ -21,6 +21,7 @@ CONFIG_SCHEMA = cv.Schema({
     cv.Required("rx_pin"): cv.All(pins.internal_gpio_input_pin_schema, validate_rx_pin),
     cv.Optional("apartment_address", default=1): cv.int_range(min=0, max=255),
     cv.Optional("ring_duration", default="3s"): cv.All(cv.positive_time_period_milliseconds, cv.Range(max=cv.TimePeriod(milliseconds=60000))),
+    cv.Optional("bus_monitor", default=False): cv.boolean,
     cv.Optional("ring"): binary_sensor.binary_sensor_schema(icon="mdi:bell-ring"),
     cv.Optional("on_frame"): automation.validate_automation({
         cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(FrameTrigger),
@@ -32,6 +33,7 @@ async def to_code(config):
     await cg.register_component(var, config)
     pin = await cg.gpio_pin_expression(config["rx_pin"])
     cg.add(var.set_rx_pin(pin))
+    cg.add(var.set_bus_monitor(config["bus_monitor"]))
     cg.add(var.set_apartment_address(config["apartment_address"]))
     cg.add(var.set_ring_duration(config["ring_duration"]))
     if "ring" in config:

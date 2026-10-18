@@ -2,10 +2,12 @@
 """Compile the shipped example against the local component with dummy Wi-Fi."""
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 
 root = Path(__file__).resolve().parents[1]
-source = (root / "examples/tp28-receiver.yaml").read_text()
+example = sys.argv[1] if len(sys.argv) > 1 else "bus-monitor.yaml"
+source = (root / "examples" / example).read_text()
 source = source.replace(
     "source: github://prokudin07/comelit-6750w-esphome@main",
     "source:\n      type: local\n      path: " + str(root / "components"),

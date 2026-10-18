@@ -104,3 +104,10 @@ with tempfile.TemporaryDirectory() as directory:
     subprocess.run(['c++', '-std=c++17', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-I', str(ROOT/'components/comelit_simplebus'), str(cpp), '-o', str(executable)], check=True)
     subprocess.run([str(executable)], check=True)
 print(f'Validated {len(raw_frames)} original logged frame fixtures.')
+
+with tempfile.TemporaryDirectory() as directory:
+    executable = Path(directory) / "bus_monitor_test"
+    subprocess.run(["c++", "-std=c++17", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+                    "-I", str(ROOT/"tests/stubs"), "-I", str(ROOT/"components/comelit_simplebus"),
+                    str(ROOT/"tests/bus_monitor_test.cpp"), "-o", str(executable)], check=True)
+    subprocess.run([str(executable)], check=True)
