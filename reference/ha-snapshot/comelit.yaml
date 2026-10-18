@@ -1,0 +1,97 @@
+substitutions:
+  apartment_address: "1"
+  ring_pulse_ms: "3000"
+
+esphome:
+  name: comelit-sniffer
+  friendly_name: Comelit Sniffer
+  includes:
+    - comelit_protocol.h
+    - comelit_control.h
+    - tp29_sniffer.h
+  on_boot:
+    - priority: 800
+      then:
+        - lambda: comelit::early_off();
+    - priority: -100
+      then:
+        - lambda: |-
+            tp29_sniffer_setup();
+            comelit::setup(
+              ${apartment_address}, ${ring_pulse_ms},
+              [](bool state) { id(intercom_ring).publish_state(state); },
+              [](const char *message) { id(intercom_tx_status).publish_state(message); }
+            );
+  on_shutdown:
+    - priority: 700
+      then:
+        - lambda: comelit::shutdown();
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: arduino
+
+# Keep your existing wifi/api/ota credentials if already configured.
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+
+api:
+
+ota:
+  - platform: esphome
+
+logger:
+  level: DEBUG
+  baud_rate: 115200
+
+binary_sensor:
+  - platform: template
+    name: "Звонок в домофон"
+    id: intercom_ring
+    icon: mdi:bell-ring
+
+button:
+  - platform: template
+    name: "Поднять трубку"
+    icon: mdi:phone
+    on_press:
+      - lambda: comelit::answer();
+  - platform: template
+    name: "Завершить разговор"
+    icon: mdi:phone-hangup
+    on_press:
+      - lambda: comelit::hang_up();
+  - platform: template
+    name: "Открыть дверь домофона"
+    icon: mdi:door-open
+    on_press:
+      - lambda: comelit::open_door();
+
+switch:
+  - platform: template
+    name: "Разрешить передачу в домофон"
+    id: intercom_tx_enable
+    icon: mdi:transmission-tower
+    entity_category: config
+    lambda: return comelit::tx_enabled;
+    restore_mode: ALWAYS_OFF
+    turn_on_action:
+      - lambda: comelit::set_enabled(true);
+    turn_off_action:
+      - lambda: comelit::set_enabled(false);
+
+text_sensor:
+  - platform: template
+    name: "Состояние отправки домофона"
+    id: intercom_tx_status
+    icon: mdi:message-text-outline
+    entity_category: diagnostic
+    update_interval: never
+
+interval:
+  - interval: 10ms
+    then:
+      - lambda: |-
+          tp29_sniffer_process();
