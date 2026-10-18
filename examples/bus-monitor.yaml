@@ -11,6 +11,7 @@ esp32:
 external_components:
   - source: github://prokudin07/comelit-6750w-esphome@main
     components: [comelit_simplebus]
+    refresh: 0s
 
 wifi:
   ssid: !secret wifi_ssid
